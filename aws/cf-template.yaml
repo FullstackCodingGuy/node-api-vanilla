@@ -74,7 +74,7 @@ Resources:
       ExecutionRoleArn: !GetAtt ECSExecutionRole.Arn
       ContainerDefinitions:
         - Name: my-app-container
-          Image: public.ecr.aws/nginx/nginx:latest  # Replace with your ECR image
+          Image: infinityplatforms/node-api-vanilla:latest  # Replace with your ECR image
           PortMappings:
             - ContainerPort: 80
               HostPort: 80

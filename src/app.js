@@ -5,7 +5,7 @@ const port = process.env.PORT || 8000;
 // Middleware and configurations can be set up here
 
 app.get('/', (req, res) => {
-    res.send(`Hello, Node Vanilla API!`);
+    res.send(`Hello, World!`);
 });
 
 app.get("/health", (req, res) => {

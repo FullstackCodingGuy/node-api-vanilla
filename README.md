@@ -34,7 +34,7 @@ npm start
 The server will be running at http://localhost:8000.
 
 API Endpoints
-GET /hello_world - Returns "Hello World"
+GET / - Returns "Hello, World!"
 GET /health - Returns "I'm Good!"
 ```
 

@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: node-api-vanilla:latest
+    container_name: node-api-vanilla-container
     ports:
       - "8000:8000"
     volumes:

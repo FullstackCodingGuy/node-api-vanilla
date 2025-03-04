@@ -1,0 +1,28 @@
+{
+  "name": "vanilla-api",
+  "version": "1.0.0",
+  "description": "A boilerplate API project for nodejs, express and few more batteries",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FullstackCodingGuy/node-api-vanilla.git"
+  },
+  "keywords": [
+    "boilerplate",
+    "nodejs",
+    "expressjs"
+  ],
+  "author": "FullstackCodingGuy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/FullstackCodingGuy/node-api-vanilla/issues"
+  },
+  "homepage": "https://github.com/FullstackCodingGuy/node-api-vanilla#readme",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

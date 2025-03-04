@@ -104,7 +104,7 @@ Wait for few minutes, check the console in CloudFormation Stack page for latest 
 - ✔ Deploys a VPC, Subnet, Security Group
 - ✔ Launches an EC2 instance with Docker & ECS Agent
 - ✔ Pulls a Node.js app from ECR/DockerHub
-- ✔ Runs the app on port 3000 (mapped to 80)
+- ✔ Runs the app on port 8000 (mapped to 80)
 - ✔ Creates ECS Cluster, Task Definition, and Service
 
 License

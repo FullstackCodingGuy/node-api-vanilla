@@ -94,7 +94,7 @@ Resources:
           chmod +x /usr/local/bin/docker-compose
           echo ECS_CLUSTER=MyECSCluster >> /etc/ecs/ecs.config
           service docker restart
-          docker run -d -p 80:3000 --name nodeapp 344883437139.dkr.ecr.us-east-1.amazonaws.com/node-api-vanilla
+          docker run -d -p 80:8000 --name nodeapp 344883437139.dkr.ecr.us-east-1.amazonaws.com/node-api-vanilla
 
   # 🔹 ECS Service & Task Definition
   MyTaskDefinition:

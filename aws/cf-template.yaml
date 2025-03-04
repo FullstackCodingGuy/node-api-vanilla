@@ -1,126 +1,107 @@
-AWSTemplateFormatVersion: "2010-09-09"
-Description: "Deploy a Node.js container on an EC2 instance using ECS"
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy a containerized application on AWS Fargate
 
 Resources:
-  # 🔹 VPC and Subnet
+  # VPC and Networking
   MyVPC:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: 10.0.0.0/16
       EnableDnsSupport: true
       EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: MyVPC
 
-  MySubnet:
+  MySubnet1:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref MyVPC
       CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select [ 0, !GetAZs "" ]
       MapPublicIpOnLaunch: true
 
-  # 🔹 Security Group
+  MySubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Select [ 1, !GetAZs "" ]
+      MapPublicIpOnLaunch: true
+
   MySecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: "Allow SSH and HTTP"
+      GroupDescription: Allow inbound traffic to ECS
       VpcId: !Ref MyVPC
       SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
           CidrIp: 0.0.0.0/0
 
-  # 🔹 ECS Cluster
-  MyECSCluster:
-    Type: AWS::ECS::Cluster
-
-  # 🔹 IAM Role for ECS Instance
-  ECSInstanceRole:
+  # IAM Role for ECS Task Execution
+  ECSExecutionRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: ECSExecutionRole
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
-              Service: [ec2.amazonaws.com]
-            Action: ["sts:AssumeRole"]
-      Policies:
-        - PolicyName: ECSInstancePolicy
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "ecs:CreateCluster"
-                  - "ecs:DeregisterContainerInstance"
-                  - "ecs:DiscoverPollEndpoint"
-                  - "ecs:Poll"
-                  - "ecs:RegisterContainerInstance"
-                  - "ecs:StartTelemetrySession"
-                  - "ecs:Submit*"
-                  - "logs:CreateLogStream"
-                  - "logs:PutLogEvents"
-                Resource: "*"
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
 
-  ECSInstanceProfile:
-    Type: AWS::IAM::InstanceProfile
+  # ECS Cluster
+  MyECSCluster:
+    Type: AWS::ECS::Cluster
     Properties:
-      Roles: [!Ref ECSInstanceRole]
+      ClusterName: MyFargateCluster
 
-  # 🔹 Launch EC2 Instance
-  MyEC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      InstanceType: t3.micro
-      IamInstanceProfile: !Ref ECSInstanceProfile
-      ImageId: ami-014d544cfef21b42d # Amazon Linux 2 AMI (Change for your region)
-      SecurityGroupIds: [!Ref MySecurityGroup]
-      SubnetId: !Ref MySubnet
-      UserData:
-        Fn::Base64: |
-          #!/bin/bash
-          yum update -y
-          yum install -y amazon-linux-extras
-          amazon-linux-extras enable docker
-          yum install -y docker
-          systemctl start docker
-          systemctl enable docker
-          usermod -aG docker ec2-user
-          curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
-          chmod +x /usr/local/bin/docker-compose
-          echo ECS_CLUSTER=MyECSCluster >> /etc/ecs/ecs.config
-          service docker restart
-          docker run -d -p 80:3000 --name nodeapp 344883437139.dkr.ecr.us-east-1.amazonaws.com/node-api-vanilla
-
-  # 🔹 ECS Service & Task Definition
+  # ECS Task Definition
   MyTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: nodejs-task
+      Family: MyAppTask
+      Cpu: 256
+      Memory: 2048
+      NetworkMode: awsvpc
       RequiresCompatibilities:
-        - EC2
-      NetworkMode: bridge
+        - FARGATE
+      ExecutionRoleArn: !GetAtt ECSExecutionRole.Arn
       ContainerDefinitions:
-        - Name: nodejs-app
-          Image: 344883437139.dkr.ecr.us-east-1.amazonaws.com/node-api-vanilla # Replace with your actual ECR/DockerHub image
-          Memory: 512
-          Cpu: 256
+        - Name: my-app-container
+          Image: public.ecr.aws/nginx/nginx:latest  # Replace with your ECR image
           PortMappings:
-            - ContainerPort: 8000
+            - ContainerPort: 80
               HostPort: 80
+          Essential: true
 
+  # ECS Service
   MyECSService:
     Type: AWS::ECS::Service
     Properties:
       Cluster: !Ref MyECSCluster
+      ServiceName: MyFargateService
+      LaunchType: FARGATE
       TaskDefinition: !Ref MyTaskDefinition
-      DesiredCount: 1
-      LaunchType: EC2
-      # NetworkConfiguration:
-      #   AwsvpcConfiguration:
-      #     Subnets: [!Ref MySubnet]
-      #     SecurityGroups: [!Ref MySecurityGroup]
+      DesiredCount: 2
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets:
+            - !Ref MySubnet1
+            - !Ref MySubnet2
+          SecurityGroups:
+            - !Ref MySecurityGroup
+
+Outputs:
+  ClusterName:
+    Description: Name of the ECS Cluster
+    Value: !Ref MyECSCluster
+  ServiceName:
+    Description: Name of the ECS Service
+    Value: !Ref MyECSService

@@ -1,7 +1,7 @@
 const express = require('express');
 const serverless = require('serverless-http');
 const app = express();
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 80;
 
 // Middleware and configurations can be set up here
 

@@ -31,7 +31,7 @@ Start the server:
 npm start
 
 
-The server will be running at http://localhost:8000.
+The server will be running at http://localhost:80.
 
 API Endpoints
 GET / - Returns "Hello, World!"
@@ -62,50 +62,44 @@ GET /health - Returns "I'm Good!"
 
 4. Access the application:
 
-   Open your web browser and navigate to `http://localhost:8000` (or the port specified in your `docker-compose.yml`).
+   Open your web browser and navigate to `http://localhost:80` (or the port specified in your `docker-compose.yml`).
 
 
-# Deploy to AWS EC2
+# Deploy to AWS Fargate
 
-Here’s a CloudFormation template to deploy a Node.js container on an EC2 instance using AWS ECS (Elastic Container Service) with EC2 launch type.
+Here's a CloudFormation template to deploy a containerized application on AWS Fargate using Amazon ECS. This template:
 
+✅ Creates an ECS Cluster
 
-- ✅ Creates a VPC, Security Group, ECS Cluster, and EC2 instance
-- ✅ Deploys a Node.js app container from ECR or DockerHub
-- ✅ Uses Auto Scaling Group for high availability
-- ✅ Sets up IAM Roles for EC2 and ECS
+✅ Defines a Task Definition with Fargate
 
+✅ Deploys a Service using an Application Load Balancer
+
+✅ Uses an AWS VPC, Security Groups, IAM Roles for networking & permissions
 
 Execute Commands in Sequence
+
 > npm run dc-build 
+
 > npm run dc-run
+
 > npm run dc-stop
+
 > npm run ecrlogin
+
 > npm run tagimage
+
 > npm run pushimage
+
 > npm run verifyimage
+
 > npm run aws-create-stack | aws-update-stack
 
+- Wait for deployment (~5-10 minutes), check the console in CloudFormation Stack page for latest status.
+- Verify the ECS Service & Logs in AWS ECS Console
+- 
 ```
-If there are no errors in the process, it will create the stackid
-
-### Example
-
-{
-    "StackId": "arn:aws:cloudformation:us-east-1:344883437139:stack/NodeApiVanilla/bde38350-f8c3-11ef-bd34-0ef5edef2bf9"
-}
-
-Wait for few minutes, check the console in CloudFormation Stack page for latest status.
-
-```
-
-🚀 What This Command Does
-
-- ✔ Deploys a VPC, Subnet, Security Group
-- ✔ Launches an EC2 instance with Docker & ECS Agent
-- ✔ Pulls a Node.js app from ECR/DockerHub
-- ✔ Runs the app on port 3000 (mapped to 80)
-- ✔ Creates ECS Cluster, Task Definition, and Service
 
 License
+
 This project is licensed under the MIT License - see the LICENSE file for details.

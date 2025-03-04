@@ -1,12 +1,12 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Transform: 'AWS::Serverless-2016-10-31'
+Transform: AWS::Serverless-2016-10-31
 Resources:
   NodeApiFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: AWS::Serverless::Function
     Properties:
       Handler: src/app.handler
       Runtime: nodejs18.x
-      CodeUri: .
+      CodeUri: s3://cftemplate1986/228b0cd722efbdff77c98f3c856b9ae8
       MemorySize: 128
       Timeout: 30
       Environment:
@@ -20,5 +20,6 @@ Resources:
             Method: ANY
 Outputs:
   ApiUrl:
-    Description: "API Gateway endpoint URL for Prod environment"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Description: API Gateway endpoint URL for Prod environment
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/

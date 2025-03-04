@@ -14,8 +14,9 @@
     "tagimage": "docker tag node-api-vanilla:latest 344883437139.dkr.ecr.us-east-1.amazonaws.com/node-api-vanilla:latest",
     "pushimage": "docker push 344883437139.dkr.ecr.us-east-1.amazonaws.com/node-api-vanilla:latest",
     "verifyimage": "aws ecr list-images --repository-name node-api-vanilla --region us-east-1",
-    "aws-deploy": "aws cloudformation create-stack --stack-name NodeApiVanilla --template-body file://aws/cf-template.yaml --capabilities CAPABILITY_IAM",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "aws-create-stack": "aws cloudformation create-stack --stack-name NodeApiVanillaStack --template-body file://aws/cf-template.yaml --capabilities CAPABILITY_IAM",
+    "aws-update-stack": "aws cloudformation update-stack --stack-name NodeApiVanillaStack --template-body file://aws/cf-template.yaml --capabilities CAPABILITY_IAM",
+    "aws-delete-stack": "aws cloudformation delete-stack --stack-name NodeApiVanillaStack"
   },
   "repository": {
     "type": "git",

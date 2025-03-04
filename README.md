@@ -84,7 +84,7 @@ Execute Commands in Sequence
 > npm run tagimage
 > npm run pushimage
 > npm run verifyimage
-> npm run aws-deploy
+> npm run aws-create-stack | aws-update-stack
 
 ```
 If there are no errors in the process, it will create the stackid
@@ -94,6 +94,8 @@ If there are no errors in the process, it will create the stackid
 {
     "StackId": "arn:aws:cloudformation:us-east-1:344883437139:stack/NodeApiVanilla/bde38350-f8c3-11ef-bd34-0ef5edef2bf9"
 }
+
+Wait for few minutes, check the console in CloudFormation Stack page for latest status.
 
 ```
 

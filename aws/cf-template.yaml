@@ -77,7 +77,7 @@ Resources:
     Properties:
       InstanceType: t3.micro
       IamInstanceProfile: !Ref ECSInstanceProfile
-      ImageId: ami-0c55b159cbfafe1f0 # Amazon Linux 2 AMI (Change for your region)
+      ImageId: ami-014d544cfef21b42d # Amazon Linux 2 AMI (Change for your region)
       SecurityGroupIds: [!Ref MySecurityGroup]
       SubnetId: !Ref MySubnet
       UserData:
@@ -94,7 +94,7 @@ Resources:
           chmod +x /usr/local/bin/docker-compose
           echo ECS_CLUSTER=MyECSCluster >> /etc/ecs/ecs.config
           service docker restart
-          docker run -d -p 80:3000 --name nodeapp public.ecr.aws/myrepo/nodejs-app:latest
+          docker run -d -p 80:3000 --name nodeapp 344883437139.dkr.ecr.us-east-1.amazonaws.com/node-api-vanilla
 
   # 🔹 ECS Service & Task Definition
   MyTaskDefinition:
@@ -106,7 +106,7 @@ Resources:
       NetworkMode: bridge
       ContainerDefinitions:
         - Name: nodejs-app
-          Image: public.ecr.aws/myrepo/nodejs-app:latest # Replace with your actual ECR/DockerHub image
+          Image: 344883437139.dkr.ecr.us-east-1.amazonaws.com/node-api-vanilla # Replace with your actual ECR/DockerHub image
           Memory: 512
           Cpu: 256
           PortMappings:
@@ -120,7 +120,7 @@ Resources:
       TaskDefinition: !Ref MyTaskDefinition
       DesiredCount: 1
       LaunchType: EC2
-      NetworkConfiguration:
-        AwsvpcConfiguration:
-          Subnets: [!Ref MySubnet]
-          SecurityGroups: [!Ref MySecurityGroup]
+      # NetworkConfiguration:
+      #   AwsvpcConfiguration:
+      #     Subnets: [!Ref MySubnet]
+      #     SecurityGroups: [!Ref MySecurityGroup]

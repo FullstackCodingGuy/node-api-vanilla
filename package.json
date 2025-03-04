@@ -10,6 +10,8 @@
     "dc-stop": "docker-compose down",
     "dockerbuild": "docker build -t vanilla-api .",
     "dockerrun": "docker run -p 80:80 vanilla-api",
+    "docker-tag":"docker tag node-api-vanilla:latest infinityplatforms/node-api-vanilla:latest",
+    "docker-push":"docker push infinityplatforms/node-api-vanilla:latest",
     "ecrlogin": "aws ecr get-login-password | docker login --username AWS --password-stdin 939338074907.dkr.ecr.us-east-1.amazonaws.com",
     "tagimage": "docker tag node-api-vanilla:latest 939338074907.dkr.ecr.us-east-1.amazonaws.com/node-api-vanilla:latest",
     "pushimage": "docker push 939338074907.dkr.ecr.us-east-1.amazonaws.com/node-api-vanilla:latest",

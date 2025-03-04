@@ -7,7 +7,7 @@ A boilerplate API project for Node.js, Express, and a few more batteries.
 ### Flavours
 
 - [EC2 Deployment Stack](https://github.com/FullstackCodingGuy/node-api-vanilla/tree/aws-ec2-stack-deployment)
-- [Fargate Deployment Stack)(https://github.com/FullstackCodingGuy/node-api-vanilla/tree/aws-fargate-stack-deployment)
+- [Fargate Deployment Stack](https://github.com/FullstackCodingGuy/node-api-vanilla/tree/aws-fargate-stack-deployment)
 - [Lambda](https://github.com/FullstackCodingGuy/node-api-vanilla/tree/aws-lambda-stack-deployment)
 
 ### Prerequisites

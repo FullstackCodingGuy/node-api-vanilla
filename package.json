@@ -10,6 +10,8 @@
     "dc-stop": "docker-compose down",
     "dockerbuild": "docker build -t vanilla-api .",
     "dockerrun": "docker run -p 8000:8000 vanilla-api",
+    "aws-package": "aws cloudformation package --template-file template.yaml --s3-bucket YOUR_S3_BUCKET_NAME --output-template-file packaged-template.yaml",
+    "aws-deploy": "aws cloudformation deploy --template-file packaged-template.yaml --stack-name node-api-vanilla-stack --capabilities CAPABILITY_IAM",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -28,6 +30,7 @@
   },
   "homepage": "https://github.com/FullstackCodingGuy/node-api-vanilla#readme",
   "dependencies": {
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "serverless-http": "^3.2.0"
   }
 }

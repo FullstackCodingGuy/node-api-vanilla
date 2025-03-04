@@ -1,4 +1,5 @@
 const express = require('express');
+const serverless = require('serverless-http');
 const app = express();
 const port = process.env.PORT || 8000;
 
@@ -16,3 +17,5 @@ app.get("/health", (req, res) => {
 app.listen(port, () => {
     console.log(`App is running on http://localhost:${port}`);
 });
+
+module.exports.handler = serverless(app);

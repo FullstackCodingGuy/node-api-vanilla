@@ -2,9 +2,14 @@
   "name": "vanilla-api",
   "version": "1.0.0",
   "description": "A boilerplate API project for nodejs, express and few more batteries",
-  "main": "app.js",
+  "main": "src/app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node src/app.js",
+    "dc-build": "docker-compose build",
+    "dc-run": "docker-compose up",
+    "dc-stop": "docker-compose down",
+    "dockerbuild": "docker build -t vanilla-api .",
+    "dockerrun": "docker run -p 8000:8000 vanilla-api",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -65,5 +65,45 @@ GET /health - Returns "I'm Good!"
    Open your web browser and navigate to `http://localhost:8000` (or the port specified in your `docker-compose.yml`).
 
 
+# Deploy to AWS EC2
+
+Here’s a CloudFormation template to deploy a Node.js container on an EC2 instance using AWS ECS (Elastic Container Service) with EC2 launch type.
+
+
+- ✅ Creates a VPC, Security Group, ECS Cluster, and EC2 instance
+- ✅ Deploys a Node.js app container from ECR or DockerHub
+- ✅ Uses Auto Scaling Group for high availability
+- ✅ Sets up IAM Roles for EC2 and ECS
+
+
+Execute Commands in Sequence
+> npm run dc-build 
+> npm run dc-run
+> npm run dc-stop
+> npm run ecrlogin
+> npm run tagimage
+> npm run pushimage
+> npm run verifyimage
+> npm run aws-deploy
+
+```
+If there are no errors in the process, it will create the stackid
+
+### Example
+
+{
+    "StackId": "arn:aws:cloudformation:us-east-1:344883437139:stack/NodeApiVanilla/bde38350-f8c3-11ef-bd34-0ef5edef2bf9"
+}
+
+```
+
+🚀 What This Command Does
+
+- ✔ Deploys a VPC, Subnet, Security Group
+- ✔ Launches an EC2 instance with Docker & ECS Agent
+- ✔ Pulls a Node.js app from ECR/DockerHub
+- ✔ Runs the app on port 3000 (mapped to 80)
+- ✔ Creates ECS Cluster, Task Definition, and Service
+
 License
 This project is licensed under the MIT License - see the LICENSE file for details.

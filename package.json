@@ -10,8 +10,11 @@
     "dc-stop": "docker-compose down",
     "dockerbuild": "docker build -t vanilla-api .",
     "dockerrun": "docker run -p 8000:8000 vanilla-api",
-    "aws-package": "aws cloudformation package --template-file ./aws/cf-template.yaml --s3-bucket cftemplate1986 --output-template-file packaged-template.yaml",
-    "aws-deploy": "aws cloudformation deploy --template-file packaged-template.yaml --stack-name node-api-vanilla-stack --capabilities CAPABILITY_IAM",
+    "ecrlogin": "aws ecr get-login-password | docker login --username AWS --password-stdin 344883437139.dkr.ecr.us-east-1.amazonaws.com",
+    "tagimage": "docker tag node-api-vanilla:latest 344883437139.dkr.ecr.us-east-1.amazonaws.com/node-api-vanilla:latest",
+    "pushimage": "docker push 344883437139.dkr.ecr.us-east-1.amazonaws.com/node-api-vanilla:latest",
+    "verifyimage": "aws ecr list-images --repository-name node-api-vanilla --region us-east-1",
+    "aws-deploy": "aws cloudformation create-stack --stack-name NodeApiVanilla --template-body file://aws/cf-template.yaml --capabilities CAPABILITY_IAM",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

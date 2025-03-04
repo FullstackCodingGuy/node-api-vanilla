@@ -1,24 +1,126 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: 'AWS::Serverless-2016-10-31'
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Deploy a Node.js container on an EC2 instance using ECS"
+
 Resources:
-  NodeApiFunction:
-    Type: 'AWS::Serverless::Function'
+  # 🔹 VPC and Subnet
+  MyVPC:
+    Type: AWS::EC2::VPC
     Properties:
-      Handler: src/app.handler
-      Runtime: nodejs18.x
-      CodeUri: .
-      MemorySize: 128
-      Timeout: 30
-      Environment:
-        Variables:
-          NODE_ENV: production
-      Events:
-        ApiEvent:
-          Type: Api
-          Properties:
-            Path: /{proxy+}
-            Method: ANY
-Outputs:
-  ApiUrl:
-    Description: "API Gateway endpoint URL for Prod environment"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+
+  MySubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+
+  # 🔹 Security Group
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Allow SSH and HTTP"
+      VpcId: !Ref MyVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  # 🔹 ECS Cluster
+  MyECSCluster:
+    Type: AWS::ECS::Cluster
+
+  # 🔹 IAM Role for ECS Instance
+  ECSInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ec2.amazonaws.com]
+            Action: ["sts:AssumeRole"]
+      Policies:
+        - PolicyName: ECSInstancePolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "ecs:CreateCluster"
+                  - "ecs:DeregisterContainerInstance"
+                  - "ecs:DiscoverPollEndpoint"
+                  - "ecs:Poll"
+                  - "ecs:RegisterContainerInstance"
+                  - "ecs:StartTelemetrySession"
+                  - "ecs:Submit*"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
+
+  ECSInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles: [!Ref ECSInstanceRole]
+
+  # 🔹 Launch EC2 Instance
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.micro
+      IamInstanceProfile: !Ref ECSInstanceProfile
+      ImageId: ami-0c55b159cbfafe1f0 # Amazon Linux 2 AMI (Change for your region)
+      SecurityGroupIds: [!Ref MySecurityGroup]
+      SubnetId: !Ref MySubnet
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          yum update -y
+          yum install -y amazon-linux-extras
+          amazon-linux-extras enable docker
+          yum install -y docker
+          systemctl start docker
+          systemctl enable docker
+          usermod -aG docker ec2-user
+          curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
+          echo ECS_CLUSTER=MyECSCluster >> /etc/ecs/ecs.config
+          service docker restart
+          docker run -d -p 80:3000 --name nodeapp public.ecr.aws/myrepo/nodejs-app:latest
+
+  # 🔹 ECS Service & Task Definition
+  MyTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: nodejs-task
+      RequiresCompatibilities:
+        - EC2
+      NetworkMode: bridge
+      ContainerDefinitions:
+        - Name: nodejs-app
+          Image: public.ecr.aws/myrepo/nodejs-app:latest # Replace with your actual ECR/DockerHub image
+          Memory: 512
+          Cpu: 256
+          PortMappings:
+            - ContainerPort: 8000
+              HostPort: 80
+
+  MyECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref MyECSCluster
+      TaskDefinition: !Ref MyTaskDefinition
+      DesiredCount: 1
+      LaunchType: EC2
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          Subnets: [!Ref MySubnet]
+          SecurityGroups: [!Ref MySecurityGroup]
